@@ -1,0 +1,4 @@
+krakenex
+python-dotenv
+pandas
+pykrakenapi
