@@ -66,7 +66,6 @@ def trade():
         try:
             print(f"\n🔍 Checking {pair}...")
             ohlc, _ = api.get_ohlc_data(pair, interval=1)  # '1' = 1-minute data
-            ohlc.index.freq = '1min'  # explicitly set freq to avoid warning
             close_prices = ohlc['close'].astype(float)
             rsi = get_rsi(close_prices)
             current_rsi = rsi.iloc[-1]
