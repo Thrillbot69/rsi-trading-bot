@@ -103,3 +103,4 @@ if __name__ == "__main__":
             time.sleep(60)
     except KeyboardInterrupt:
         print("\n🛑 Bot stopped manually.")
+Silence FutureWarnings and clean logs
