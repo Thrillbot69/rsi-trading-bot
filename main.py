@@ -1,9 +1,12 @@
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
 import krakenex
 from pykrakenapi import KrakenAPI
+from dotenv import load_dotenv
 import os
 import time
 import pandas as pd
-from dotenv import load_dotenv
 
 load_dotenv()
 k = krakenex.API(key=os.getenv("KRAKEN_API_KEY"), secret=os.getenv("KRAKEN_PRIVATE_KEY"))
@@ -65,7 +68,7 @@ def trade():
     for coin, pair in COINS.items():
         try:
             print(f"\n🔍 Checking {pair}...")
-            ohlc, _ = api.get_ohlc_data(pair, interval=1)  # '1' = 1-minute data
+            ohlc, _ = api.get_ohlc_data(pair, interval=1)
             close_prices = ohlc['close'].astype(float)
             rsi = get_rsi(close_prices)
             current_rsi = rsi.iloc[-1]
@@ -100,4 +103,3 @@ if __name__ == "__main__":
             time.sleep(60)
     except KeyboardInterrupt:
         print("\n🛑 Bot stopped manually.")
-Update main.py with logging + bugfixes
