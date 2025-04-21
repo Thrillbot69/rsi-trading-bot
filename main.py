@@ -1,4 +1,3 @@
-
 import krakenex
 from pykrakenapi import KrakenAPI
 import os
@@ -51,21 +50,28 @@ def get_rsi(prices, period=RSI_PERIOD):
     return rsi
 
 def get_balance():
-    return api.get_account_balance()
+    try:
+        return api.get_account_balance()
+    except Exception as e:
+        print(f"❌ Error getting account balance: {e}")
+        return {}
 
 def trade():
     balances = get_balance()
+    if not balances:
+        print("⚠️ No balances found. Skipping cycle.")
+        return
+
     for coin, pair in COINS.items():
-        print(f"🔍 Checking {pair}...")
         try:
-            ohlc, _ = api.get_ohlc_data(pair, interval=1)
+            print(f"\n🔍 Checking {pair}...")
+            ohlc, _ = api.get_ohlc_data(pair, interval=1)  # '1' = 1-minute data
+            ohlc.index.freq = '1min'  # explicitly set freq to avoid warning
             close_prices = ohlc['close'].astype(float)
             rsi = get_rsi(close_prices)
-            if rsi.isna().all():
-                print(f"⚠️ Not enough data for RSI on {pair}")
-                continue
             current_rsi = rsi.iloc[-1]
             current_price = close_prices.iloc[-1]
+
             print(f"📈 RSI for {pair}: {current_rsi:.2f} | Price: {current_price:.6f}")
 
             base = "ZCAD" if "CAD" in pair else "ZUSD"
@@ -83,7 +89,7 @@ def trade():
                 log_trade(pair, "sell", current_price, volume, balances)
 
         except Exception as e:
-            print(f"⚠️ Error checking {pair}: {e}")
+            print(f"❌ Error processing {pair}: {e}")
         time.sleep(3)
 
 if __name__ == "__main__":
@@ -91,6 +97,8 @@ if __name__ == "__main__":
     try:
         while True:
             trade()
+            print("✅ Cycle complete. Sleeping for 60 seconds...\n")
             time.sleep(60)
     except KeyboardInterrupt:
         print("\n🛑 Bot stopped manually.")
+Update main.py with logging + bugfixes
